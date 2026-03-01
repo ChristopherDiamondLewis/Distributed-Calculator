@@ -1,0 +1,14 @@
+services:
+  calc_leader:
+    build:
+      context: .
+      dockerfile: calc_leader/Dockerfile
+    # keep container alive without executing binary
+    command: ["tail", "-f", "/dev/null"]
+
+  calc_replica:
+    build:
+      context: .
+      dockerfile: calc_replica/Dockerfile
+    # keep container alive without executing binary
+    command: ["tail", "-f", "/dev/null"]
