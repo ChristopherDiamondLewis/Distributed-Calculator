@@ -1,0 +1,28 @@
+/build/
+/cmake-build-debug/
+/out/
+/bin/
+
+# CMake files
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+TestingTemporaryFile.cmake
+compile_commands.json
+
+# IDE/editor
+.vscode/
+*.user
+*.suo
+*~
+
+# Compiled objects and binaries
+*.o
+*.obj
+*.lo
+*.a
+*.so
+*.dll
+*.exe
+*.out
