@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package sharedcalculator;
+
+service Leader {
+  rpc GetUpdates(GetUpdatesRequest) returns (GetUpdatesResponse);
+}
+
+message GetUpdatesRequest { uint64 from_index = 1; }
+
+message GetUpdatesResponse {
+  uint64 latest_index = 1;
+  repeated Event events = 2;
+}
+
+message Event { uint64 index = 1; string op = 2; int64 arg = 3; }

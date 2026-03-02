@@ -4,13 +4,14 @@ FROM ubuntu:22.04
 # install build tools
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-        cmake build-essential
+        cmake build-essential protobuf-compiler-grpc libgrpc++-dev
+        
 
-WORKDIR /calc_leader
+WORKDIR /calc_replica
 # copy whole project so subdirs can build libraries
-COPY ./calc_leader .
+COPY calc_replica .
 
-# build just the leader service
+# build just the replica service
 RUN mkdir -p build && \
     cd build && \
     cmake .. && \
