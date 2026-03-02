@@ -42,8 +42,7 @@ add_library(${SERVICE_LIBRARY} ${ALL_SOURCES} ${PROTO_SRCS} ${PROTO_HDRS} ${GRPC
 
 # Make the local headers visible to targets built from this directory so
 # includes like <workerFunctions.h> resolve during compilation.
-target_include_directories(${SERVICE_LIBRARY} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-
+target_include_directories(${SERVICE_LIBRARY} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/shared_calculator/shared_calculator_leader)
 
 add_executable(${SERVICE}
     shared_calculator_replica.m.cpp
