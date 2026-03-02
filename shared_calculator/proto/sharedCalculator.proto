@@ -4,13 +4,20 @@ package sharedcalculator;
 
 service Leader {
   rpc GetUpdates(GetUpdatesRequest) returns (GetUpdatesResponse);
+  rpc GetMostRecentValue(GetMostRecentValueRequest) returns (GetMostRecentValueResponse);
 }
 
 message GetUpdatesRequest { uint64 from_index = 1; }
+message GetMostRecentValueRequest { }
 
 message GetUpdatesResponse {
   uint64 latest_index = 1;
   repeated Event events = 2;
+}
+
+message GetMostRecentValueResponse {
+  int64 current_value = 1;
+  uint64 latest_index = 2;
 }
 
 message Event { uint64 eventindex = 1; string operation = 2; int64 argument = 3; }

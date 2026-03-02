@@ -1,28 +1,28 @@
 #pragma once
 
-#include <sharedCalc.grpc.pb.h>
+#include <shared_calculator_leader.h>
 
+#include <memory>
+#include <optional>
 #include <string>
+#include <utility>
+#include <vector>
 
 namespace Calculator {
-
-struct Event {
-  std::string d_operation;
-  int64_t d_argument{0};
-  size_t d_eventIndex{0};
-};
-
 class Replica {
  public:
   // constructor, destructor, and other member functions
-  Replica();
-  ~Replica();
+  Replica(std::unique_ptr<sharedcalculator::Leader::Stub> stub);
+  ~Replica() = default;
 
   bool Run();
-  Event getEvent(const size_t eventIndex);
+  std::vector<Event> getEventsFromIndex(const size_t fromIndex) const;
+  std::optional<std::pair<int64_t, size_t>> GetMostRecentValue() const;
+  void applyEvent(const Event event);
 
  private:
   int64_t d_currValue;
   size_t d_lastIndexGotten;
+  std::unique_ptr<sharedcalculator::Leader::Stub> d_stub;
 };
 }  // namespace Calculator

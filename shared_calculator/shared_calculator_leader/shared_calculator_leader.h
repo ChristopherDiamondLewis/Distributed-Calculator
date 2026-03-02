@@ -3,6 +3,8 @@
 #include <sharedCalculator.grpc.pb.h>
 #include <sharedCalculator.pb.h>
 
+#include <mutex>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -21,7 +23,6 @@ struct Event {
 
 class Leader {
  public:
-  // constructor, destructor, and other member functions
   Leader();
   ~Leader() = default;
 
@@ -29,10 +30,12 @@ class Leader {
   void SubmitEvent(const Event event);
   Event CreateRandomEvent();
   std::vector<Event> GetUpdatesFrom(const size_t fromIndex);
+  std::pair<int64_t, size_t> GetCurrentValueAndIndex() const;
 
  private:
   int64_t d_currValue;
   std::vector<Event> d_events;
   size_t d_lastWrittenIndex;
+  mutable std::mutex d_mutex;
 };
 }  // namespace Calculator
