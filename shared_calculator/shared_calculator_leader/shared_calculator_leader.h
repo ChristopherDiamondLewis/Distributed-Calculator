@@ -6,6 +6,7 @@
 #include <condition_variable>
 #include <mutex>
 #include <optional>
+#include <random>
 #include <string>
 #include <vector>
 
@@ -43,6 +44,10 @@ class Leader {
  private:
   int64_t d_currValue;
   Events d_events;
+  std::vector<std::string> d_supportedOperations{"ADD", "SUBTRACT", "MULTIPLY", "DIVIDE"};
+  std::mt19937 d_rng;
+  std::uniform_int_distribution<size_t> d_opDistribution;
+  std::uniform_int_distribution<int64_t> d_argDistribution;
   std::condition_variable d_updates_available_cv;
   mutable std::mutex d_mutex;
 };

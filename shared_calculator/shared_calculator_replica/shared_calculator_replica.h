@@ -16,8 +16,10 @@ class Replica {
   ~Replica() = default;
 
   void Run();
+ private:
   std::optional<std::pair<int64_t, size_t>> GetMostRecentValue() const;
-  void applyEvent(const Event event);
+  void ApplyEvent(const Event event);
+  void ApplyCalculation(const Event& event);
 
  private:
   int64_t d_currValue;

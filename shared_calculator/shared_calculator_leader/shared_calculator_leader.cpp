@@ -2,12 +2,17 @@
 
 #include <chrono>
 #include <condition_variable>
+#include <iostream>
 #include <optional>
 #include <thread>
 
 namespace Calculator {
 
-Leader::Leader() : d_currValue(0){};
+Leader::Leader()
+    : d_currValue(0),
+      d_rng(std::random_device{}()),
+      d_opDistribution(0, 3),
+      d_argDistribution(1, 100) {}
 
 void Leader::Run() {
   while (true) {
@@ -21,8 +26,7 @@ void Leader::Run() {
 
 std::optional<Events> Leader::WaitForUpdatesFromIndex(
     const size_t fromIndex, const std::chrono::milliseconds timeout) {
-  // wait until there are updates available starting from fromIndex, or until
-  // timeout
+
   std::unique_lock<std::mutex> lock(d_mutex);
 
   const bool updates_available = d_updates_available_cv.wait_for(
@@ -56,8 +60,21 @@ void Leader::SubmitEvent(Event event) {
 }
 
 void Leader::ApplyCalculation(const Event &event) {
+  // Note: We do not handle int64_t overflow/underflow for ADD, SUBTRACT, MULTIPLY.
+  // For production, would add bounds checking or use arbitrary precision arithmetic.
+  // Division by zero is handled below.
   if (event.d_operation == "ADD") {
     d_currValue += event.d_argument;
+  } else if (event.d_operation == "SUBTRACT") {
+    d_currValue -= event.d_argument;
+  } else if (event.d_operation == "MULTIPLY") {
+    d_currValue *= event.d_argument;
+  } else if (event.d_operation == "DIVIDE") {
+    if (event.d_argument != 0) {
+      d_currValue /= event.d_argument;
+    } else {
+      std::cerr << "Division by zero attempted, skipping" << std::endl;
+    }
   } else {
     std::cerr << "Unknown operation: " << event.d_operation << std::endl;
   }
@@ -70,8 +87,8 @@ std::pair<int64_t, size_t> Leader::GetCurrentValueAndIndex() const {
 
 Event Leader::CreateRandomEvent() {
   Event event;
-  event.d_operation = "ADD";
-  event.d_argument = 1;
+  event.d_operation = d_supportedOperations[d_opDistribution(d_rng)];
+  event.d_argument = d_argDistribution(d_rng);
   return event;
 }
 

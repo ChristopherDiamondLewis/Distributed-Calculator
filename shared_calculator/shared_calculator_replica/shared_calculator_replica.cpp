@@ -58,7 +58,7 @@ void Replica::Run() {
 
     sharedcalculator::Event event;
     while (streamOfEvents->Read(&event)) {
-      applyEvent({.d_operation = event.operation(),
+      ApplyEvent({.d_operation = event.operation(),
                   .d_argument = event.argument(),
                   .d_eventIndex = event.eventindex()});
       // reset backoff since we successfully got an event!!!!
@@ -70,15 +70,32 @@ void Replica::Run() {
   }
 }
 
-void Replica::applyEvent(const Event event) {
+void Replica::ApplyEvent(const Event event) {
   std::cout << "Applying event: " << event << std::endl;
+  ApplyCalculation(event);
+  d_lastIndexGotten = event.d_eventIndex + 1;
+}
+
+void Replica::ApplyCalculation(const Event& event) {
+  // Note: We do not handle int64_t overflow/underflow for ADD, SUBTRACT, MULTIPLY.
+  // For production, would add bounds checking or use arbitrary precision arithmetic.
+  // Division by zero is handled below.
   if (event.d_operation == "ADD") {
     d_currValue += event.d_argument;
+  } else if (event.d_operation == "SUBTRACT") {
+    d_currValue -= event.d_argument;
+  } else if (event.d_operation == "MULTIPLY") {
+    d_currValue *= event.d_argument;
+  } else if (event.d_operation == "DIVIDE") {
+    if (event.d_argument != 0) {
+      d_currValue /= event.d_argument;
+    } else {
+      std::cerr << "Division by zero attempted, skipping" << std::endl;
+    }
   } else {
     std::cerr << "Unknown operation: " << event.d_operation << std::endl;
   }
   std::cout << "Current value: " << d_currValue << std::endl;
-  d_lastIndexGotten = event.d_eventIndex + 1;
 }
 
 std::optional<std::pair<int64_t, size_t>> Replica::GetMostRecentValue() const {
