@@ -57,7 +57,15 @@ void Replica::Run() {
     auto streamOfEvents = d_stub->StreamUpdates(&context, request);
 
     sharedcalculator::Event event;
+
     while (streamOfEvents->Read(&event)) {
+      if (event.eventindex() != d_lastIndexGotten) {
+        std::cout << "Out-of-order event: expected " << d_lastIndexGotten
+                  << " but got " << event.eventindex() << ". Re-syncing..."
+                  << std::endl;
+        break;  // Break stream, trigger GetMostRecentValue() on next loop
+      }
+
       ApplyEvent({.d_operation = event.operation(),
                   .d_argument = event.argument(),
                   .d_eventIndex = event.eventindex()});
@@ -77,9 +85,9 @@ void Replica::ApplyEvent(const Event event) {
 }
 
 void Replica::ApplyCalculation(const Event& event) {
-  // Note: We do not handle int64_t overflow/underflow for ADD, SUBTRACT, MULTIPLY.
-  // For production, would add bounds checking or use arbitrary precision arithmetic.
-  // Division by zero is handled below.
+  // Note: We do not handle int64_t overflow/underflow for ADD, SUBTRACT,
+  // MULTIPLY. For production, would add bounds checking or use arbitrary
+  // precision arithmetic. Division by zero is handled below.
   if (event.d_operation == "ADD") {
     d_currValue += event.d_argument;
   } else if (event.d_operation == "SUBTRACT") {
