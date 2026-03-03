@@ -5,7 +5,6 @@ package sharedcalculator;
 service Leader {
   rpc StreamUpdates(GetUpdatesRequest) returns (stream Event);
   rpc GetMostRecentValue(GetMostRecentValueRequest) returns (GetMostRecentValueResponse);
-
 }
 
 message GetUpdatesRequest { uint64 from_index = 1; }
