@@ -1,13 +1,26 @@
-# Chirs' Distributed Calculator 
+# Chris' Distributed Calculator 
 Hello all!
 
-My name is Chris and this is my distributed calculator,
+My name is Chris and this is my distributed calculator.
 
 You can follow the [How to Run](#how-to-run) and [Manual Testing](#manual-testing) sections to best test its functionality, or if you'd like to get a good understanding of the different trade offs and design choices I made, feel free to read on!
 
+## Quick Links
+
+- [Overview](#overview)
+- [How to Run](#how-to-run)
+- [Unit Tests](#unit-tests)
+- [Manual Testing](#manual-testing)
+- [State Machine](#state-machine)
+- [Architecture](#architecture)
+- [Some Implementation Details](#some-implementation-details)
+- [AI & Tools](#ai--tools)
+- [Known Limitations](#known-limitations--outside-of-scope)
+- [Resources](#outside-resources-used)
+
 ## Overview
 
-Leader generates random calculator operations on shared state. Multiple replicas consume a gRPC event stream and apply the same operations to stay in sync, like a shared document, but with math!
+Leader calculator will generate random operations maintaing an in memory data set of `Events`. Multiple replicas consume a gRPC event stream and apply the same operations to stay in sync, like a shared document, but with math and eventual consistancy.
 
 ## How to Run 
 
@@ -76,7 +89,7 @@ Leader               gRPC Stream               Replicas
 **Leader**: Owns state, generates events, pushes via gRPC.  
 **Replica**: Consumes stream, applies events, re-syncs if leader restarts or out of order detected.
 
-## Implementation
+## Some Implementation Details
 
 ### Event Stream & Restart Detection
 
