@@ -3,7 +3,7 @@ Hello all!
 
 My name is Chris and this is my distributed calculator.
 
-You can follow the [How to Run](#how-to-run) and [Manual Testing](#manual-testing) sections to best test its functionality, or if you'd like to get a good understanding of the different trade offs and design choices I made, feel free to read on!
+You can follow the [How to Run](#how-to-run) & [Manual Testing](#manual-testing) sections to best test its functionality, or if you'd like to get a good understanding of the different trade offs and design choices I made, feel free to read on!
 
 ## Quick Links
 
@@ -150,7 +150,7 @@ I used Copilot generally for gRPC (specifically protobuf build issues), boilerpl
 
 I also use Copilot for making sweeping changes with the filesystem if it can hold enough context. For example I asked it to change application names all at once to match, and help me get the correct `clang-format` for my `format.sh` script.
 
-Lastly Copilot also helped with considering good timeouts (like exponential backoff min and maxes) and what to test and not test in my unit tests.
+Lastly Copilot also helped with considering good timeouts (like exponential backoff min/maxes) and what to test and **not** test in my unit tests.
 
 ## Known Limitations & Outside of Scope
 
@@ -164,3 +164,4 @@ Lastly Copilot also helped with considering good timeouts (like exponential back
 - [Eventual Consistency lecture from a Distributed Systems course](https://www.youtube.com/watch?v=9uCP3qHNbWw)
 - [Finite State Machines in games](https://www.youtube.com/watch?v=-ZP2Xm-mY4E)
 - [Exponential Backoff on Connection Loss](https://en.wikipedia.org/wiki/Exponential_backoff)
+- [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/)
