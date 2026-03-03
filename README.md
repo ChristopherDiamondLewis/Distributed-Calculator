@@ -12,8 +12,7 @@ You can follow the [How to Run](#how-to-run) & [Manual Testing](#manual-testing)
 - [Unit Tests](#unit-tests)
 - [Manual Testing](#manual-testing)
 - [State Machine](#state-machine)
-- [Architecture](#architecture)
-- [Some Implementation Details](#some-implementation-details)
+- [Replication Model](#replication-model)
 - [AI & Tools](#ai--tools)
 - [Known Limitations](#known-limitations--outside-of-scope)
 - [Resources](#outside-resources-used)
@@ -73,7 +72,7 @@ struct Event {
 
 Leader will generate a random event every few milliseconds while the replicas subscribe to those events and correctly apply them, synchronizing with the leader.
 
-## Architecture
+## Replication Model
 
 ```
 Leader               gRPC Stream               Replicas
@@ -89,57 +88,12 @@ Leader               gRPC Stream               Replicas
 **Leader**: Owns state, generates events, pushes via gRPC.  
 **Replica**: Consumes stream, applies events, re-syncs if leader restarts or out of order detected.
 
-## Some Implementation Details
-
-### Event Stream & Restart Detection
-
-Replica calls `GetMostRecentValue()` before opening stream to sync state and detect restarts.
-
-```cpp
-// Replica.Run() main loop
-while (true) {
-  // Try to sync to leader's current state
-  auto mostRecentValue = GetMostRecentValue();
-  if (!mostRecentValue.has_value()) {
-    // Leader unreachable, backoff and retry
-    sleep(backoffMs);
-    backoffMs = min(backoffMs * 2, MAX_BACKOFF_MS);
-    continue;
-  }
-  
-  auto [leaderValue, leaderIndex] = mostRecentValue.value();
-  d_currValue = leaderValue;
-  d_lastIndexGotten = leaderIndex;
-  
-  // Open stream from the synced position
-  auto stream = d_stub->StreamUpdates(from_index=d_lastIndexGotten);
-  
-  // Consume events
-  sharedcalculator::Event event;
-  while (stream->Read(&event)) {
-    if (event.eventindex() != d_lastIndexGotten) {
-      // Out of order detected, break and re-sync
-      break;
-    }
-    
-    ApplyEvent(event);
-    d_lastIndexGotten++;
-    backoffMs = STARTING_BACKOFF_MS;  // Reset on successful event
-  }
-  
-  // Stream ended, loop back to GetMostRecentValue()
-}
-```
-
-If `latest_index` goes backwards, leader restarted. Replica resets to new baseline. 
-
-### Architecture Choices
+### Key Trade Offs
 
 **gRPC Streaming**: Originally I considered polling the leader repeatedly (replicas asking "do you have updates?"), but that creates a gap: if the leader dies right after a replica checks and then restarts, the replica sleeps waiting for its next polling interval and misses the new events. With streaming, the connection is always open and the leader pushes events the moment it generates them, so nothing gets missed. The continuous push is also more efficient than repeatedly asking "do you have anything for me?"
 
 **Separate Transport Layer**: Keep business logic away from gRPC. Makes the leader easy to test independently and transport swappable.
 
-**Eventual Consistency**: Replicas converge to the leader's state over time. Individual events are applied in order, but there's a window where replicas may differ. This is acceptable for read-heavy workloads where strong consistency isn't required.
 
 ### Out of Order Detection
 

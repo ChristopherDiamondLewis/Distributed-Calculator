@@ -16,6 +16,11 @@ class Replica {
   /**
    * @brief Runs the replica, continuously trying to stream updates from the
    * leader and applying them to its local state.
+   *
+   * @note The replica will attempt to re-sync with the leader if it detects any
+   * out of order events or if the connection to the leader is lost.
+   *
+   * @note https://en.wikipedia.org/wiki/Exponential_backoff
    */
   void Run();
 
