@@ -32,8 +32,7 @@ void Replica::Run() {
   int backoffMs{STARTING_BACKOFF_MS};
 
   while (true) {
-    const auto mostRecentValue = GetMostRecentValue();
-    if (mostRecentValue.has_value()) {
+    if (const auto mostRecentValue = GetMostRecentValue()) {
       const auto [leaderValue, leaderIndex] = mostRecentValue.value();
       d_currValue = leaderValue;
       d_lastIndexGotten = leaderIndex;
@@ -66,6 +65,7 @@ void Replica::Run() {
       ApplyEvent({.d_operation = event.operation(),
                   .d_argument = event.argument(),
                   .d_eventIndex = event.eventindex()});
+
       // reset backoff since we successfully got an event!!!!
       backoffMs = STARTING_BACKOFF_MS;
     }

@@ -95,11 +95,15 @@ TEST(SharedCalculatorLeaderTest,
   // AND: We get the current state and wait for new events
   auto [currentValue, currentIndex] = leaderUnderTest.GetCurrentValueAndIndex();
   auto updates = leaderUnderTest.WaitForUpdatesFromIndex(
-      currentIndex, std::chrono::milliseconds(500));
+      currentIndex + 1, std::chrono::milliseconds(500));
 
   // THEN: Should have returned new events after the current index
   EXPECT_TRUE(updates.has_value());
   EXPECT_GT(updates->size(), 0);
+
+  for (const auto& event : updates.value()) {
+    EXPECT_GT(event.d_eventIndex, currentIndex);
+  }
 
   leaderThread.detach();
 }

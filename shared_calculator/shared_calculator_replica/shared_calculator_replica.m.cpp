@@ -14,8 +14,7 @@ int main() {
       grpc::CreateChannel(leaderHostName, grpc::InsecureChannelCredentials());
   auto stub = sharedcalculator::Leader::NewStub(channel);
 
-  std::shared_ptr<Calculator::Replica> replica =
-      std::make_shared<Calculator::Replica>(std::move(stub));
+  auto replica = std::make_shared<Calculator::Replica>(std::move(stub));
 
   std::cout << "Starting replica - "
             << (std::hash<std::thread::id>{}(std::this_thread::get_id()) % 1000)
