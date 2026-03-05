@@ -1,7 +1,4 @@
 # Chris' Distributed Calculator 
-Hello all!
-
-My name is Chris and this is my distributed calculator.
 
 You can follow the [How to Run](#how-to-run) & [Manual Testing](#manual-testing) sections to best test its functionality, or if you'd like to get a good understanding of the different trade offs and design choices I made, feel free to read on!
 
