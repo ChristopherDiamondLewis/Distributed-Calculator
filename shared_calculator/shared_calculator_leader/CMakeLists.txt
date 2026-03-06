@@ -46,6 +46,12 @@ add_library(${SERVICE_LIBRARY} ${ALL_SOURCES} ${PROTO_SRCS} ${PROTO_HDRS} ${GRPC
 # includes like <workerFunctions.h> resolve during compilation.
 target_include_directories(${SERVICE_LIBRARY} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
+# Link against common library
+target_link_libraries(${SERVICE_LIBRARY} PUBLIC shared_calculator_common)
+
+# Include common headers
+target_include_directories(${SERVICE_LIBRARY} PUBLIC ${CMAKE_SOURCE_DIR}/shared_calculator/common)
+
 
 add_executable(${SERVICE}
     shared_calculator_leader.m.cpp

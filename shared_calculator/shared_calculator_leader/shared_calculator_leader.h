@@ -2,6 +2,7 @@
 
 #include <sharedCalculator.grpc.pb.h>
 #include <sharedCalculator.pb.h>
+#include <shared_calculator_common.h>
 
 #include <condition_variable>
 #include <mutex>
@@ -11,19 +12,6 @@
 #include <vector>
 
 namespace Calculator {
-
-struct Event {
-  std::string d_operation;
-  int64_t d_argument{0};
-  size_t d_eventIndex{0};
-
-  friend std::ostream& operator<<(std::ostream& os, const Event& event) {
-    os << event.d_operation << " " << event.d_argument;
-    return os;
-  }
-};
-
-using Events = std::vector<Event>;
 
 class Leader {
  public:
@@ -58,16 +46,15 @@ class Leader {
   std::pair<int64_t, size_t> GetCurrentValueAndIndex() const;
 
  private:
-  Events GetUpdatesFromWithLock(const size_t fromIndex) const;
   void SubmitEvent(Event event);
   Event CreateRandomEvent();
-  void ApplyCalculation(const Event& event);
+  Events GetUpdatesFromWithLock(const size_t fromIndex) const;
 
  private:
   int64_t d_currValue;
   Events d_events;
-  std::vector<std::string> d_supportedOperations{"ADD", "SUBTRACT", "MULTIPLY",
-                                                 "DIVIDE"};
+  std::vector<std::string> d_supportedOperations{
+      "ADD", "SUBTRACT", "MULTIPLY", "DIVIDE", "SQUARE_ROOT", "POWER_OF_TWO"};
   std::mt19937 d_rng;
   std::uniform_int_distribution<size_t> d_opDistribution;
   std::uniform_int_distribution<int64_t> d_argDistribution;
